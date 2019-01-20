@@ -9,6 +9,7 @@ import com.dog.demo.model.api.ApiResponse;
 import com.dog.demo.model.request.CreateDogRequest;
 import com.dog.demo.repository.DogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -30,6 +31,15 @@ public class DogService {
 
     @Autowired
     private S3Service s3Service;
+
+
+    @Value("${s3.upload.quota.enable:false}")
+    private boolean quota;
+
+    @Value("${s3.upload.quota.times:0}")
+    private int times;
+
+    private static int CURRENT_UPLOAD = 0;
 
     /**
      * get dog by Id
@@ -89,15 +99,24 @@ public class DogService {
         ApiResponse  response = apiService.getRandomDog();
         String uuid = UUID.randomUUID().toString();
 
-        try {
-            byte[] imageContent = getImage(response.getMessage());
-            s3Service.uploadFile(uuid,imageContent,"image/jpeg");
-            Date date = new Date();
-            newDog.setUploadDate(date);
-            newDog.setS3Link(s3Service.getUrl(uuid));
 
-        } catch (Exception e) {
-            throw new ImageErrorException();
+        if(!quota || CURRENT_UPLOAD < times ){
+            try {
+                byte[] imageContent = getImage(response.getMessage());
+                s3Service.uploadFile(uuid,imageContent,"image/jpeg");
+                Date date = new Date();
+                newDog.setUploadDate(date);
+                newDog.setS3Link(s3Service.getUrl(uuid));
+
+            } catch (Exception e) {
+                throw new ImageErrorException();
+            }
+        }
+
+        if(quota){
+            synchronized (this){
+                CURRENT_UPLOAD = CURRENT_UPLOAD + 1;
+            }
         }
 
         dogRepository.save(newDog);

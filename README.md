@@ -24,8 +24,11 @@ AWS_ACCESS_KEY_ID=[AWS_ACCESS_KEY]
 AWS_SECRET_ACCESS_KEY=[AWS_SECERT_KEY]
 S3_REGION=[S3_REGION]
 S3_BUCKET=[S3_BUCKET]
+UPLOAD_QUOTA_FLAG=false
+UPLOAD_QUOTA_TIME=0
 ```
 
+UPLOAD_QUOTA_FLAG restricts the S3 uploading.
 
 3. go to project root and run the following command to generate the artifact.
 `./gradlew clean build`
