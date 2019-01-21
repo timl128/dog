@@ -37,7 +37,7 @@ You can skip testing by running
 `./gradlew clean build -x test`
 
 4. You can run the application by the following command if you set the sysytem variables.
-`java -jar /project/root/build/libs/dog-0.0.0.jar`
+`java -jar /project/root/build/libs/demo-0.0.0.jar`
 
 Otherwise, you add `-DDEMO_DB_SOURCE=` and `-DDEMO_DB_USER=` in the command.
 
